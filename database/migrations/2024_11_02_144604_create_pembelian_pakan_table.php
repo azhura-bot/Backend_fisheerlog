@@ -9,16 +9,18 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
-        Schema::create('kolam', function (Blueprint $table) {
+        Schema::create('pembelian_pakan', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_kolam')->unique();
+            $table->string('nama_pakan');
             $table->text('deskripsi')->nullable();
-            $table->string('jenis_kelamin');
-            $table->integer('total_ikan')->default(0);
-            $table->integer('total_pakan')->default(0);
+            $table->unsignedBigInteger('kolam_id');
+            $table->integer('jumlah_pembelian');
+            $table->date('tanggal_pembelian');
             $table->timestamps();
+
+            $table->foreign('kolam_id')->references('id')->on('kolam')->onDelete('cascade');
         });
     }
 
@@ -27,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kolam');
+        Schema::dropIfExists('pembelian_pakan');
     }
 };

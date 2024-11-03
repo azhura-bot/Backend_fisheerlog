@@ -23,7 +23,7 @@ class ModulController extends Controller
     {
         $module = new Modul();
         $module->judul = $request->judul;
-        $module->deskrispi = $request->deskrispi;
+        $module->deskripsi = $request->deskripsi;
 
         // Simpan gambar di public/images
         if ($request->hasFile('image')) {
@@ -61,7 +61,7 @@ class ModulController extends Controller
     {
         $module = Modul::find($id);
         $module->judul = $request->judul;
-        $module->deskrispi = $request->deskrispi;
+        $module->deskripsi = $request->deskripsi;
 
         // Update gambar jika ada file baru
         if ($request->hasFile('image')) {

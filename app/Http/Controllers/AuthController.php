@@ -13,7 +13,7 @@ class AuthController extends Controller
     private function createUser($validated, $role)
     {
         $user = User::create([
-            'name' => $validated['name'],
+            'username' => $validated['username'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => $role,
@@ -26,12 +26,12 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:3|confirmed',
         ]);
 
-        $user = $this->createUser($validated, 'karyawan'); // Menggunakan metode createUser
+        $user = $this->createUser($validated, 'karyawan');
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -78,15 +78,19 @@ class AuthController extends Controller
     public function registerManager(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:3|confirmed',
         ]);
-
-        $user = $this->createUser($validated, 'manager'); // Menggunakan metode createUser
-
+    
+        $user = $this->createUser($validated, 'manager');
+    
+        if (!$user) {
+            return response()->json(['message' => 'Failed to register manager'], 500);
+        }
+    
         $token = $user->createToken('auth_token')->plainTextToken;
-
+    
         return response()->json([
             'message' => 'Manager registered successfully',
             'access_token' => $token,

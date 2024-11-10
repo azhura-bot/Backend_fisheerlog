@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable
 {
@@ -17,9 +18,9 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'username',      // Nama pengguna
-        'email',     // Alamat email pengguna
-        'password',  // Kata sandi pengguna
-        'role',      // Role pengguna
+        'email',         // Alamat email pengguna
+        'password',      // Kata sandi pengguna
+        'role',          // Role pengguna
     ];
 
     /**
@@ -42,11 +43,19 @@ class User extends Authenticatable
     ];
 
     /**
+     * Set the user's password with a mutator to ensure it is always hashed.
+     */
+    public function setPasswordAttribute($password)
+    {
+        $this->attributes['password'] = Hash::make($password);
+    }
+
+    /**
      * The default attributes for the model.
      *
      * @var array<string, mixed>
      */
-    // protected $attributes = [
-    //     'role' => 'karyawan', // Set role default sebagai karyawan
-    // ];
+    protected $attributes = [
+        'role' => 'karyawan', // Set role default sebagai karyawan
+    ];
 }

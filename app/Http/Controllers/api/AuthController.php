@@ -12,34 +12,44 @@ class AuthController extends Controller
     // Fungsi untuk membuat user
     private function createUser($validated, $role)
     {
-        $user = User::create([
+        return User::create([
             'username' => $validated['username'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => $role,
         ]);
-
-        return $user;
     }
 
-    // Register user
+    // Fungsi untuk menghasilkan token autentikasi
+    private function generateToken($user)
+    {
+        return $user->createToken('auth_token')->plainTextToken;
+    }
+
+    // Register user dengan role 'karyawan'
     public function register(Request $request)
     {
         $validated = $request->validate([
-            'username' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'username' => 'required|string|max:255|unique:users,username',
+            'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:3|confirmed',
         ]);
 
+        // Membuat user baru dengan role 'karyawan'
         $user = $this->createUser($validated, 'karyawan');
-
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $this->generateToken($user);
 
         return response()->json([
             'message' => 'User registered successfully',
             'access_token' => $token,
             'token_type' => 'Bearer',
-        ]);
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'email' => $user->email,
+                'role' => $user->role,
+            ]
+        ], 201); // Status 201 untuk menunjukkan resource baru berhasil dibuat
     }
 
     // Login user
@@ -51,16 +61,22 @@ class AuthController extends Controller
         ]);
 
         if (!Auth::attempt($validated)) {
-            return response()->json(['message' => 'Invalid credentials'], 401); // Tambahkan status code
+            return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
         $user = Auth::user();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $this->generateToken($user);
 
         return response()->json([
             'message' => 'User logged in successfully',
             'access_token' => $token,
             'token_type' => 'Bearer',
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'email' => $user->email,
+                'role' => $user->role,
+            ]
         ]);
     }
 
@@ -97,4 +113,4 @@ class AuthController extends Controller
             'token_type' => 'Bearer',
         ]);
     }
-}
+} 

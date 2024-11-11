@@ -1,11 +1,12 @@
 <?php
 
-use App\Http\Controllers\Daily_TaskController;
-use App\Http\Controllers\KolamController;
-use App\Http\Controllers\ModulController;
-use App\Http\Controllers\PembelianPakanController;
-use App\Http\Controllers\PenjualanIkanController;
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\api\Daily_TaskController;
+use App\Http\Controllers\api\KolamController;
+use App\Http\Controllers\api\ModulController;
+use App\Http\Controllers\api\PembelianPakanController;
+use App\Http\Controllers\api\PenjualanIkanController;
+use App\Http\Controllers\api\AuthController;
+use App\Http\Controllers\api\KaryawanController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -21,4 +22,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('kolam', KolamController::class);
     Route::resource('pembelian_pakan', PembelianPakanController::class);
     Route::resource('penjualan_ikan', PenjualanIkanController::class);
+    Route::post('/karyawan/import', [KaryawanController::class, 'import']);
+    Route::get('/karyawan/export', [KaryawanController::class, 'export']);
+    Route::get('/karyawan', [KaryawanController::class, 'index']);
+    Route::delete('/karyawan/{id}', [KaryawanController::class, 'destroy']);
 });

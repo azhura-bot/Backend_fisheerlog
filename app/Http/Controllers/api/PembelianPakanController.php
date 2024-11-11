@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\api;
 
+use App\Http\Controllers\Controller;
 use App\Models\PembelianPakan;
 use App\Models\Kolam;
 use Illuminate\Http\Request;

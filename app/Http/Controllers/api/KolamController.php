@@ -15,6 +15,7 @@ class KolamController extends Controller
 
     public function store(Request $request)
     {
+        // Validasi input
         $request->validate([
             'nama_kolam' => 'required|string',
             'deskripsi' => 'required|string',
@@ -22,8 +23,11 @@ class KolamController extends Controller
             'total_ikan' => 'required|integer',
             'total_pakan' => 'required|integer',
         ]);
-
+        
+        // Membuat entitas Kolam baru berdasarkan data request
         $kolam = Kolam::create($request->all());
+        
+        // Mengembalikan response JSON
         return response()->json($kolam, 201);
     }
 

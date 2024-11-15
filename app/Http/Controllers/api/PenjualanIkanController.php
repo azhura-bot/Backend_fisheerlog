@@ -21,7 +21,6 @@ class PenjualanIkanController extends Controller
             'deskripsi' => 'nullable|string',
             'nama_kolam' => 'required|string',
             'jumlah_penjualan' => 'required|integer',
-            'tanggal_penjualan' => 'required|date',
         ]);
 
         $kolam = Kolam::where('nama_kolam', $request->nama_kolam)->first();
@@ -42,7 +41,6 @@ class PenjualanIkanController extends Controller
             'deskripsi' => $request->deskripsi,
             'kolam_id' => $kolam->id,
             'jumlah_penjualan' => $request->jumlah_penjualan,
-            'tanggal_penjualan' => $request->tanggal_penjualan,
         ]);
 
         return response()->json($penjualan, 201);
@@ -69,7 +67,6 @@ class PenjualanIkanController extends Controller
             'deskripsi' => 'string',
             'nama_kolam' => 'string',
             'jumlah_penjualan' => 'integer',
-            'tanggal_penjualan' => 'date',
         ]);
 
         $kolam = Kolam::find($penjualan->kolam_id);

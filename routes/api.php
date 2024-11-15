@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Route;
 // Routes untuk autentikasi
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/regis', [AuthController::class, 'registerManager']);
+Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Group routes yang memerlukan autentikasi Sanctum
@@ -27,3 +29,4 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/karyawan', [KaryawanController::class, 'index']);
     Route::delete('/karyawan/{id}', [KaryawanController::class, 'destroy']);
 });
+

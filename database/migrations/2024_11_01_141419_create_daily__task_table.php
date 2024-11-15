@@ -13,11 +13,15 @@ return new class extends Migration
     {
         Schema::create('daily_task', function (Blueprint $table) {
             $table->id();
-            $table->string('task_name');
-            $table->text('description');
+            $table->string('nama_task');
+            $table->text('deskripsi')->nullable();
             $table->enum('status', ['not started', 'in progress', 'completed'])->default('not started');
-            $table->foreignId('manager_id')->constrained('users');
-            $table->foreignId('karyawan_id')->nullable()->constrained('users');
+            $table->string('karyawan_username');
+            $table->foreign('karyawan_username')->references('username')->on('users')->onDelete('cascade');
+            $table->unsignedBigInteger('manager_id');
+            $table->foreign('manager_id')->references('id')->on('users')->onDelete('cascade');
+            $table->date('due_date');
+            $table->boolean('completed')->default(false);
             $table->timestamps();
         });
     }

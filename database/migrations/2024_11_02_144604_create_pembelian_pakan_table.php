@@ -17,7 +17,6 @@ return new class extends Migration
             $table->text('deskripsi')->nullable();
             $table->unsignedBigInteger('kolam_id');
             $table->integer('jumlah_pembelian');
-            $table->date('tanggal_pembelian');
             $table->timestamps();
 
             $table->foreign('kolam_id')->references('id')->on('kolam')->onDelete('cascade');

@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class PembelianPakan extends Model
 {
-    protected $fillable = ['nama_pakan', 'deskripsi', 'kolam_id', 'jumlah_pembelian', 'tanggal_pembelian'];
+    protected $table = 'pembelian_pakan';
+    
+    protected $fillable = ['nama_pakan', 'deskripsi', 'kolam_id', 'jumlah_pembelian'];
 
     public function kolam()
     {

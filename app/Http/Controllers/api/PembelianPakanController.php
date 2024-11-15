@@ -21,7 +21,6 @@ class PembelianPakanController extends Controller
             'deskripsi' => 'nullable|string',
             'nama_kolam' => 'required|string',
             'jumlah_pembelian' => 'required|integer',
-            'tanggal_pembelian' => 'required|date',
         ]);
 
         $kolam = Kolam::where('nama_kolam', $request->nama_kolam)->first();
@@ -38,7 +37,6 @@ class PembelianPakanController extends Controller
             'deskripsi' => $request->deskripsi,
             'kolam_id' => $kolam->id,
             'jumlah_pembelian' => $request->jumlah_pembelian,
-            'tanggal_pembelian' => $request->tanggal_pembelian,
         ]);
 
         return response()->json($pembelian, 201);
@@ -65,7 +63,6 @@ class PembelianPakanController extends Controller
             'deskripsi' => 'string',
             'nama_kolam' => 'string',
             'jumlah_pembelian' => 'integer',
-            'tanggal_pembelian' => 'date',
         ]);
 
         $kolam = Kolam::find($pembelian->kolam_id);

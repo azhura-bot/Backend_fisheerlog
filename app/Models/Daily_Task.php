@@ -13,9 +13,24 @@ class Daily_Task extends Model
     protected $table = 'daily_task';
 
     protected $fillable = [
-        'task_name', 
-        'description', 
-        'status', 
-        'manager_id'
+        'nama_task',
+        'deskripsi',
+        'status',
+        'manager_id',
+        'karyawan_username',
+        'due_date',
+        'completed',
     ];
+
+    // Relasi dengan User
+    public function karyawan()
+    {
+        return $this->belongsTo(User::class, 'karyawan_username', 'username');
+    }
+
+    // Relasi ke user (manager)
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'manager_id');
+    }
 }

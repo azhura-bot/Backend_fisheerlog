@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
@@ -30,46 +31,60 @@ class AuthController extends Controller
     // Register user dengan role 'karyawan'
     public function register(Request $request)
     {
+        // Validasi input yang diterima
         $validated = $request->validate([
             'username' => 'required|string|max:255|unique:users,username',
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:3|confirmed',
         ]);
-
-        // Membuat user baru dengan role 'karyawan'
-        $user = $this->createUser($validated, 'karyawan');
+    
+        // Menetapkan role sebagai 'manager' secara otomatis
+        $role = 'karyawan';
+    
+        // Membuat user baru dengan role 'manager'
+        $user = $this->createUser($validated, $role);
+    
+        // Jika pembuatan user gagal
+        if (!$user) {
+            return response()->json(['message' => 'Failed to register karyawan'], 500);
+        }
+    
+        // Generate token untuk user yang baru dibuat
         $token = $this->generateToken($user);
-
+    
+        // Return response dengan token dan data user
         return response()->json([
-            'message' => 'User registered successfully',
+            'message' => 'Manager registered successfully',
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,
                 'email' => $user->email,
-                'role' => $user->role,
+                'role' => $user->role, // Akan otomatis 'manager'
             ]
-        ], 201); // Status 201 untuk menunjukkan resource baru berhasil dibuat
+        ], 201); // Status 201 menunjukkan resource baru berhasil dibuat
     }
 
     // Login user
     public function login(Request $request)
     {
-        $validated = $request->validate([
-            'email' => 'required|string|email',
+        $request->validate([
+            'username' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        if (!Auth::attempt($validated)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+        $user = User::where('username', $request->username)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'username' => ['The provided credentials are incorrect.'],
+            ]);
         }
 
-        $user = Auth::user();
-        $token = $this->generateToken($user);
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'message' => 'User logged in successfully',
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => [
@@ -78,7 +93,7 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'role' => $user->role,
             ]
-        ]);
+        ], 200);
     }
 
     // Logout user
@@ -91,27 +106,42 @@ class AuthController extends Controller
         ]);
     }
 
-    // Tambahkan metode baru untuk registrasi manager
+    // Register manager
     public function registerManager(Request $request)
     {
+        // Validasi input yang diterima
         $validated = $request->validate([
-            'username' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'username' => 'required|string|max:255|unique:users,username',
+            'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:3|confirmed',
         ]);
     
-        $user = $this->createUser($validated, 'manager');
+        // Menetapkan role sebagai 'manager' secara otomatis
+        $role = 'manager';
     
+        // Membuat user baru dengan role 'manager'
+        $user = $this->createUser($validated, $role);
+    
+        // Jika pembuatan user gagal
         if (!$user) {
             return response()->json(['message' => 'Failed to register manager'], 500);
         }
     
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // Generate token untuk user yang baru dibuat
+        $token = $this->generateToken($user);
     
+        // Return response dengan token dan data user
         return response()->json([
             'message' => 'Manager registered successfully',
             'access_token' => $token,
             'token_type' => 'Bearer',
-        ]);
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'email' => $user->email,
+                'role' => $user->role, // Akan otomatis 'manager'
+            ]
+        ], 201); // Status 201 menunjukkan resource baru berhasil dibuat
     }
-} 
+    
+}

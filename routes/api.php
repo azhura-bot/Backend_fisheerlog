@@ -29,5 +29,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/karyawan/export', [KaryawanController::class, 'export']);
     Route::get('/karyawan', [KaryawanController::class, 'index']);
     Route::delete('/karyawan/{id}', [KaryawanController::class, 'destroy']);
+    Route::put('/update_user', [AuthController::class, 'updateUser']);
 });
 

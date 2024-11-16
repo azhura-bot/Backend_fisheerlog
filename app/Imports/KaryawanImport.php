@@ -15,6 +15,7 @@ class KaryawanImport implements ToModel, WithHeadingRow
             'username' => $row['username'],
             'password' => Hash::make($row['password']),
             'email' => $row['email'],
+            'nama' => $row['nama'],
             'no_telp'=>$row['no_telp'],
             'alamat'=>$row['alamat'],
             'role' => 'karyawan',

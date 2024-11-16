@@ -21,6 +21,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('daily_task', Daily_TaskController::class);
     Route::resource('modul', ModulController::class);
+    Route::get('/modul/download/{id}', [ModulController::class, 'download']);
     Route::resource('kolam', KolamController::class);
     Route::resource('pembelian_pakan', PembelianPakanController::class);
     Route::resource('penjualan_ikan', PenjualanIkanController::class);

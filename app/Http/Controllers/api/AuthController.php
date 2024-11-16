@@ -16,9 +16,14 @@ class AuthController extends Controller
     {
         return User::create([
             'username' => $validated['username'],
+            'nama' => $validated['nama'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => $role,
+            'no_telp' => $validated['no_telp'],
+            'alamat' => $validated['alamat'],
+            'foto' => $validated['foto'],
+            
         ]);
     }
 
@@ -60,8 +65,12 @@ class AuthController extends Controller
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,
+                'nama' => $user->nama,
                 'email' => $user->email,
-                'role' => $user->role, // Akan otomatis 'manager'
+                'no_telp' => $user ->no_telp,
+                'alamat' => $user ->alamat,
+                'foto' => $user ->foto,
+                'role' => $user->role,
             ]
         ], 201); // Status 201 menunjukkan resource baru berhasil dibuat
     }
@@ -90,7 +99,11 @@ class AuthController extends Controller
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,
+                'nama' => $user->nama,
                 'email' => $user->email,
+                'no_telp' => $user ->no_telp,
+                'alamat' => $user ->alamat,
+                'foto' => $user ->foto,
                 'role' => $user->role,
             ]
         ], 200);

@@ -12,9 +12,11 @@ class KaryawanImport implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         return new User([
-            'username' => $row['username'],   // Pastikan header di Excel sama persis
-            'email' => $row['email'],
+            'username' => $row['username'],
             'password' => Hash::make($row['password']),
+            'email' => $row['email'],
+            'no_telp'=>$row['no_telp'],
+            'alamat'=>$row['alamat'],
             'role' => 'karyawan',
         ]);
     }

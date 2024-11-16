@@ -16,7 +16,7 @@ class KaryawanExport implements FromCollection, WithHeadings
     public function collection()
     {
         // Mengambil data karyawan saja berdasarkan role
-        return User::where('role', 'karyawan')->get(['username', 'email']);
+        return User::where('role', 'karyawan')->get(['username', 'email', 'no_telp', 'alamat']);
     }
 
     /**
@@ -29,6 +29,8 @@ class KaryawanExport implements FromCollection, WithHeadings
         return [
             'Username',
             'Email',
+            'No_Telp',
+            'Alamat',
         ];
     }
 }

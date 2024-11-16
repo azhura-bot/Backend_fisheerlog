@@ -14,7 +14,15 @@ class AuthController extends Controller
     // Fungsi untuk membuat user
     private function createUser($validated, $role)
     {
-        $foto = $validated['foto'] ?? asset('assets/images/foto_profile.png');
+        // Cek apakah foto diberikan dalam base64
+        $foto = $validated['foto'] ?? null;
+
+        if($foto && strpos($foto, 'data:image') === 0) {
+            // Jika foto diberikan dalam base64, simpan sebagai string
+        } else {
+            // Jika tidak ada foto, gunakan foto default dari public/assets/images
+            $foto = asset('assets/images/foto_profile.png');
+        }
 
         return User::create([
             'username' => $validated['username'],
@@ -22,10 +30,9 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'no_telp' => $validated['no_telp'] ?? null,
             'alamat' => $validated['alamat'] ?? null,
-            'foto' => $validated['foto'] ?? $foto,
+            'foto' => $foto,
             'role' => $role,
             'password' => Hash::make($validated['password']),
-            
         ]);
     }
 
@@ -45,27 +52,30 @@ class AuthController extends Controller
             'password' => 'required|string|min:3|confirmed',
             'nama' => 'required|string|max:255',
             'no_telp' => 'nullable|string|max:15',
-            'alamat' => 'nullable|string|max:255', 
-            'foto' => 'nullable|string|max:255', 
+            'alamat' => 'nullable|string|max:255',
+            'foto' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:10240'
         ]);
-    
-        // Menetapkan role sebagai 'manager' secara otomatis
+
         $role = 'karyawan';
+
+        if ($request->hasFile('foto')) {
+            $foto = $request->file('foto');
+            $fotoPath = $foto->store('foto_profile', 'public'); // Simpan foto ke folder foto_profile
+        } else {
+            $fotoPath = 'assets/images/foto_profile.png'; // Foto default jika tidak ada upload
+        }
     
-        // Membuat user baru dengan role 'manager'
+        // Membuat user baru
         $user = $this->createUser($validated, $role);
-    
-        // Jika pembuatan user gagal
+
         if (!$user) {
             return response()->json(['message' => 'Failed to register karyawan'], 500);
         }
-    
-        // Generate token untuk user yang baru dibuat
+
         $token = $this->generateToken($user);
-    
-        // Return response dengan token dan data user
+
         return response()->json([
-            'message' => 'Manager registered successfully',
+            'message' => 'Karyawan registered successfully',
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => [
@@ -73,14 +83,15 @@ class AuthController extends Controller
                 'username' => $user->username,
                 'nama' => $user->nama,
                 'email' => $user->email,
-                'no_telp' => $user ->no_telp,
-                'alamat' => $user ->alamat,
-                'foto' => $user ->foto,
+                'no_telp' => $user->no_telp,
+                'alamat' => $user->alamat,
+                'foto' => $user->foto,
                 'role' => $user->role,
             ]
-        ], 201); 
+        ], 201);
     }
 
+    // Update user
     public function updateUser(Request $request)
     {
         $user = Auth::user();
@@ -91,24 +102,21 @@ class AuthController extends Controller
             'nama' => 'sometimes|string|max:255',
             'no_telp' => 'nullable|string|max:15',
             'alamat' => 'nullable|string|max:255',
-            'foto' => 'nullable|string|max:255',
+            'foto' => 'nullable|string',
         ]);
 
-        // Update data user
         $user->username = $validated['username'] ?? $user->username;
         $user->email = $validated['email'] ?? $user->email;
         $user->nama = $validated['nama'] ?? $user->nama;
         $user->no_telp = $validated['no_telp'] ?? $user->no_telp;
         $user->alamat = $validated['alamat'] ?? $user->alamat;
 
-        // Cek apakah ada foto baru, jika tidak gunakan foto lama atau default
         if (isset($validated['foto']) && !empty($validated['foto'])) {
             $user->foto = $validated['foto'];
         } elseif (empty($user->foto)) {
             $user->foto = asset('assets/images/foto_profile.png');
         }
 
-        // Simpan perubahan
         $user->save();
 
         return response()->json([
@@ -143,9 +151,9 @@ class AuthController extends Controller
                 'username' => $user->username,
                 'nama' => $user->nama,
                 'email' => $user->email,
-                'no_telp' => $user ->no_telp,
-                'alamat' => $user ->alamat,
-                'foto' => $user ->foto,
+                'no_telp' => $user->no_telp,
+                'alamat' => $user->alamat,
+                'foto' => $user->foto,
                 'role' => $user->role,
             ]
         ], 200);
@@ -164,28 +172,21 @@ class AuthController extends Controller
     // Register manager
     public function registerManager(Request $request)
     {
-        // Validasi input yang diterima
         $validated = $request->validate([
             'username' => 'required|string|max:255|unique:users,username',
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:3|confirmed',
         ]);
-    
-        // Menetapkan role sebagai 'manager' secara otomatis
+
         $role = 'manager';
-    
-        // Membuat user baru dengan role 'manager'
         $user = $this->createUser($validated, $role);
-    
-        // Jika pembuatan user gagal
+
         if (!$user) {
             return response()->json(['message' => 'Failed to register manager'], 500);
         }
-    
-        // Generate token untuk user yang baru dibuat
+
         $token = $this->generateToken($user);
-    
-        // Return response dengan token dan data user
+
         return response()->json([
             'message' => 'Manager registered successfully',
             'access_token' => $token,
@@ -193,14 +194,9 @@ class AuthController extends Controller
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,
-                'nama' => $user->nama,
                 'email' => $user->email,
-                'no_telp' => $user ->no_telp,
-                'alamat' => $user ->alamat,
-                'foto' => $user ->foto,
                 'role' => $user->role,
             ]
-        ], 201); // Status 201 menunjukkan resource baru berhasil dibuat
+        ], 201);
     }
-    
 }

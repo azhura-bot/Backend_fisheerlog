@@ -18,11 +18,11 @@ class AuthController extends Controller
             'username' => $validated['username'],
             'nama' => $validated['nama'],
             'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
+            'no_telp' => $validated['no_telp'] ?? null,
+            'alamat' => $validated['alamat'] ?? null,
+            'foto' => $validated['foto'] ?? null,
             'role' => $role,
-            'no_telp' => $validated['no_telp'],
-            'alamat' => $validated['alamat'],
-            'foto' => $validated['foto'],
+            'password' => Hash::make($validated['password']),
             
         ]);
     }
@@ -41,6 +41,10 @@ class AuthController extends Controller
             'username' => 'required|string|max:255|unique:users,username',
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:3|confirmed',
+            'nama' => 'required|string|max:255',
+            'no_telp' => 'nullable|string|max:15',
+            'alamat' => 'nullable|string|max:255', 
+            'foto' => 'nullable|string|max:255', 
         ]);
     
         // Menetapkan role sebagai 'manager' secara otomatis
@@ -72,7 +76,7 @@ class AuthController extends Controller
                 'foto' => $user ->foto,
                 'role' => $user->role,
             ]
-        ], 201); // Status 201 menunjukkan resource baru berhasil dibuat
+        ], 201); 
     }
 
     // Login user

@@ -14,13 +14,15 @@ class AuthController extends Controller
     // Fungsi untuk membuat user
     private function createUser($validated, $role)
     {
+        $foto = $validated['foto'] ?? asset('assets/images/foto_profile.png');
+
         return User::create([
             'username' => $validated['username'],
             'nama' => $validated['nama'],
             'email' => $validated['email'],
             'no_telp' => $validated['no_telp'] ?? null,
             'alamat' => $validated['alamat'] ?? null,
-            'foto' => $validated['foto'] ?? null,
+            'foto' => $validated['foto'] ?? $foto,
             'role' => $role,
             'password' => Hash::make($validated['password']),
             
@@ -77,6 +79,42 @@ class AuthController extends Controller
                 'role' => $user->role,
             ]
         ], 201); 
+    }
+
+    public function updateUser(Request $request)
+    {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'username' => 'sometimes|string|max:255|unique:users,username,' . $user->id,
+            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+            'nama' => 'sometimes|string|max:255',
+            'no_telp' => 'nullable|string|max:15',
+            'alamat' => 'nullable|string|max:255',
+            'foto' => 'nullable|string|max:255',
+        ]);
+
+        // Update data user
+        $user->username = $validated['username'] ?? $user->username;
+        $user->email = $validated['email'] ?? $user->email;
+        $user->nama = $validated['nama'] ?? $user->nama;
+        $user->no_telp = $validated['no_telp'] ?? $user->no_telp;
+        $user->alamat = $validated['alamat'] ?? $user->alamat;
+
+        // Cek apakah ada foto baru, jika tidak gunakan foto lama atau default
+        if (isset($validated['foto']) && !empty($validated['foto'])) {
+            $user->foto = $validated['foto'];
+        } elseif (empty($user->foto)) {
+            $user->foto = asset('assets/images/default_profile.png');
+        }
+
+        // Simpan perubahan
+        $user->save();
+
+        return response()->json([
+            'message' => 'User updated successfully',
+            'user' => $user,
+        ], 200);
     }
 
     // Login user
@@ -155,8 +193,12 @@ class AuthController extends Controller
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,
+                'nama' => $user->nama,
                 'email' => $user->email,
-                'role' => $user->role, // Akan otomatis 'manager'
+                'no_telp' => $user ->no_telp,
+                'alamat' => $user ->alamat,
+                'foto' => $user ->foto,
+                'role' => $user->role,
             ]
         ], 201); // Status 201 menunjukkan resource baru berhasil dibuat
     }

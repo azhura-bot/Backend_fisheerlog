@@ -105,7 +105,7 @@ class AuthController extends Controller
         if (isset($validated['foto']) && !empty($validated['foto'])) {
             $user->foto = $validated['foto'];
         } elseif (empty($user->foto)) {
-            $user->foto = asset('assets/images/default_profile.png');
+            $user->foto = asset('assets/images/foto_profile.png');
         }
 
         // Simpan perubahan

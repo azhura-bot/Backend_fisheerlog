@@ -22,7 +22,7 @@ class PembelianPakanController extends Controller
             'nama_pakan' => 'required|string',
             'deskripsi' => 'nullable|string',
             'nama_kolam' => 'required|string',
-            'jumlah_pembelian' => 'required|integer',
+            'jumlah_pembelian' => 'required|string',
         ]);
 
         $kolam = Kolam::where('nama_kolam', $request->nama_kolam)->first();
@@ -65,7 +65,7 @@ class PembelianPakanController extends Controller
             'nama_pakan' => 'string',
             'deskripsi' => 'string',
             'nama_kolam' => 'string',
-            'jumlah_pembelian' => 'integer',
+            'jumlah_pembelian' => 'string',
         ]);
 
         $kolam = Kolam::find($pembelian->kolam_id);

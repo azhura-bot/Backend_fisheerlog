@@ -19,6 +19,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Group routes yang memerlukan autentikasi Sanctum
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware('auth:sanctum')->get('/validate-token', [AuthController::class, 'validateToken']);
     Route::resource('daily_task', Daily_TaskController::class);
     Route::resource('modul', ModulController::class);
     Route::resource('kolam', KolamController::class);
@@ -28,5 +29,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/karyawan/export', [KaryawanController::class, 'export']);
     Route::get('/karyawan', [KaryawanController::class, 'index']);
     Route::delete('/karyawan/{id}', [KaryawanController::class, 'destroy']);
+    Route::post('/karyawan/import', [KaryawanController::class, 'import']);
 });
-
+Route::post('/karyawan/import', [KaryawanController::class, 'import']); 

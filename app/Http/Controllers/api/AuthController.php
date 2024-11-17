@@ -143,5 +143,25 @@ class AuthController extends Controller
             ]
         ], 201); // Status 201 menunjukkan resource baru berhasil dibuat
     }
+
+
+    public function validateToken(Request $request)
+    {
+        // Mendapatkan token dari header Authorization
+        $user = $request->user();
+
+        // Jika user terautentikasi, berarti token valid
+        if ($user) {
+            return response()->json([
+                'message' => 'Token valid.',
+                'user' => $user,
+            ], 200);
+        }
+
+        // Jika token tidak valid atau tidak ada, kembalikan error
+        return response()->json([
+            'message' => 'Token tidak valid atau kadaluwarsa.',
+        ], 401);
+    }
     
 }

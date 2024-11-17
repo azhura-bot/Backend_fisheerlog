@@ -85,41 +85,55 @@ class AuthController extends Controller
     }
 
     // Update user profile
-    public function updateUser(Request $request)
+    public function updateUser(Request $request, $id)
     {
-        $user = Auth::user();
+        // Mencari user berdasarkan ID
+        $user = User::find($id);
 
+        // Jika user tidak ditemukan, kembalikan respon error
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        // Validasi input request
         $validated = $request->validate([
             'username' => 'sometimes|string|max:255|unique:users,username,' . $user->id,
             'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
             'nama' => 'sometimes|string|max:255',
             'no_telp' => 'nullable|string|max:15',
             'alamat' => 'nullable|string|max:255',
-            'foto' => 'nullable|file|mimes:jpeg,png,jpg|max:2048', // Maksimal 2 MB
+            'foto' => 'nullable|file|mimes:jpeg,png,jpg|max:2048', // Pastikan format dan ukuran foto valid
         ]);
 
-        // Update field yang ada
+        // Update data pengguna, hanya mengganti yang ada di request
         $user->username = $validated['username'] ?? $user->username;
         $user->email = $validated['email'] ?? $user->email;
         $user->nama = $validated['nama'] ?? $user->nama;
         $user->no_telp = $validated['no_telp'] ?? $user->no_telp;
         $user->alamat = $validated['alamat'] ?? $user->alamat;
 
-        // Mengupdate foto jika ada yang baru
+        // Memproses upload gambar jika ada
         if ($request->hasFile('foto')) {
             $foto = $request->file('foto');
-            $fotoName = time() . '_' . $foto->getClientOriginalName();
-            $foto->move(public_path('assets/images'), $fotoName);
-            $user->image_path = url('assets/images/' . $fotoName);
+            $imageName = time() . '_' . $foto->getClientOriginalName();
+            $foto->move(public_path('assets/images'), $imageName);
+            $imagePath = 'assets/images/' . $imageName;
+            $imageUrl = url($imagePath);
+            $user->image_path = $imageUrl;
         }
 
+        // Menyimpan perubahan ke database
         $user->save();
 
+        // Mengembalikan respon sukses
         return response()->json([
             'message' => 'User updated successfully',
             'user' => $user,
         ], 200);
     }
+
+    
+    
 
     // Login user
     public function login(Request $request)

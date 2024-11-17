@@ -100,9 +100,9 @@ class AuthController extends Controller
             'username' => 'sometimes|string|max:255|unique:users,username,' . $user->id,
             'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
             'nama' => 'sometimes|string|max:255',
-            'no_telp' => 'nullable|string|max:15',
-            'alamat' => 'nullable|string|max:255',
-            'foto' => 'nullable|file|mimes:jpeg,png,jpg|max:2048', // Pastikan format dan ukuran foto valid
+            'no_telp' => 'sometimes|string|max:15',
+            'alamat' => 'sometimes|string|max:255',
+            'foto' => 'sometimes|file|mimes:jpeg,png,jpg|max:2048', // Pastikan format dan ukuran foto valid
         ]);
 
         // Update data pengguna, hanya mengganti yang ada di request

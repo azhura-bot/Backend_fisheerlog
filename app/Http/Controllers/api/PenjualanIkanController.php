@@ -11,9 +11,10 @@ class PenjualanIkanController extends Controller
 {
     public function index()
     {
-        return response()->json(PenjualanIkan::all());
+        $penjualanIkan = PenjualanIkan::with('kolam')->get();
+        return response()->json($penjualanIkan);
     }
-
+    
     public function store(Request $request)
     {
         $request->validate([
@@ -48,12 +49,13 @@ class PenjualanIkanController extends Controller
 
     public function show($id)
     {
-        $penjualan = PenjualanIkan::find($id);
+        $penjualan = PenjualanIkan::with('kolam')->find($id);
         if (!$penjualan) {
             return response()->json(['error' => 'Penjualan ikan tidak ditemukan.'], 404);
         }
         return response()->json($penjualan);
     }
+
 
     public function update(Request $request, $id)
     {

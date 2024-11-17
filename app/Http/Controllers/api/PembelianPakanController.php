@@ -11,8 +11,10 @@ class PembelianPakanController extends Controller
 {
     public function index()
     {
-        return response()->json(PembelianPakan::all());
+        $pembelianPakan = PembelianPakan::with('kolam')->get();
+        return response()->json($pembelianPakan);
     }
+
 
     public function store(Request $request)
     {
@@ -44,12 +46,13 @@ class PembelianPakanController extends Controller
 
     public function show($id)
     {
-        $pembelian = PembelianPakan::find($id);
+        $pembelian = PembelianPakan::with('kolam')->find($id); // Eager load kolam
         if (!$pembelian) {
             return response()->json(['error' => 'Pembelian pakan tidak ditemukan.'], 404);
         }
         return response()->json($pembelian);
     }
+
 
     public function update(Request $request, $id)
     {

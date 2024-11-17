@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('nama_ikan');
             $table->text('deskripsi')->nullable();
             $table->unsignedBigInteger('kolam_id');
-            $table->string('jumlah_penjualan');
+            $table->integer('jumlah_penjualan');
             $table->timestamps();
 
             $table->foreign('kolam_id')->references('id')->on('kolam')->onDelete('cascade');

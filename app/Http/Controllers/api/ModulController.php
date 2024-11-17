@@ -26,7 +26,7 @@ class ModulController extends Controller
             'judul' => 'required|string',
             'deskripsi' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'file' => 'nullable|mimes:pdf|max:10240', // Validasi hanya PDF dengan maksimal ukuran 10MB
+            'file' => 'nullable|mimes:pdf|max:10240',
         ]);
     
         $module = new Modul();

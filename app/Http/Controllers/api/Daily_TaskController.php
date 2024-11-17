@@ -35,7 +35,7 @@ class Daily_TaskController extends Controller
         $request->validate([
             'nama_task' => 'required|string',
             'deskripsi' => 'nullable|string',
-            'status' => 'in:not started,in progress,completed',
+            'status' => 'in:pending,completed',
             'karyawan_username' => 'required|exists:users,username',
             'due_date' => 'required|date',
         ]);
@@ -58,7 +58,7 @@ class Daily_TaskController extends Controller
         $task = Daily_Task::create([
             'nama_task' => $request->nama_task,
             'deskripsi' => $request->deskripsi,
-            'status' => $request->status ?? 'not started',
+            'status' => $request->status ?? 'pending',
             'karyawan_username' => $karyawan->username,
             'manager_id' => $manager->id,
             'due_date' => $request->due_date,
@@ -87,7 +87,7 @@ class Daily_TaskController extends Controller
         $request->validate([
             'nama_task' => 'string',
             'deskripsi' => 'string',
-            'status' => 'in:not started,in progress,completed',
+            'status' => 'in:pending,completed',
             'due_date' => 'date',
         ]);
 

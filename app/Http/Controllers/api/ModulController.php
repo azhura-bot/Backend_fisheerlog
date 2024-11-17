@@ -22,10 +22,17 @@ class ModulController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'judul' => 'required|string',
+            'deskripsi' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'file' => 'nullable|mimes:pdf|max:10240',
+        ]);
+    
         $module = new Modul();
         $module->judul = $request->judul;
         $module->deskripsi = $request->deskripsi;
-
+    
         // Simpan gambar di public/images
         if ($request->hasFile('image')) {
             $image = $request->file('image');
@@ -33,19 +40,38 @@ class ModulController extends Controller
             $image->move(public_path('images'), $imageName);
             $module->image_path = 'images/' . $imageName;
         }
-
-        // Simpan file modul di public/modul
+    
+        // Simpan file PDF di public/modul
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $fileName = time() . '_' . $file->getClientOriginalName();
+    
+            // Validasi bahwa file harus PDF
+            if ($file->getClientOriginalExtension() !== 'pdf') {
+                return response()->json(['error' => 'Hanya file PDF yang diizinkan.'], 422);
+            }
+    
             $file->move(public_path('modul'), $fileName);
             $module->file_path = 'modul/' . $fileName;
         }
-
+    
         $module->save();
+    
         return response()->json($module);
     }
+    
+    public function download($id)
+    {
+        $module = Modul::findOrFail($id);
+    
+        if (!$module->file_path || !file_exists(public_path($module->file_path))) {
+            return response()->json(['error' => 'File tidak ditemukan.'], 404);
+        }
+    
+        return response()->download(public_path($module->file_path));
+    }
 
+    
     /**
      * Display the specified resource.
      */

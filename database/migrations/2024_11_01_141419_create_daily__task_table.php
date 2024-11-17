@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nama_task');
             $table->text('deskripsi')->nullable();
-            $table->enum('status', ['not started', 'in progress', 'completed'])->default('not started');
+            $table->enum('status', ['pending', 'completed']);
             $table->string('karyawan_username');
             $table->foreign('karyawan_username')->references('username')->on('users')->onDelete('cascade');
             $table->unsignedBigInteger('manager_id');

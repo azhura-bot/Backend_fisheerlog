@@ -22,6 +22,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::middleware('auth:sanctum')->get('/validate-token', [AuthController::class, 'validateToken']);
     Route::resource('daily_task', Daily_TaskController::class);
     Route::resource('modul', ModulController::class);
+    Route::get('/modul/download/{id}', [ModulController::class, 'download']);
     Route::resource('kolam', KolamController::class);
     Route::resource('pembelian_pakan', PembelianPakanController::class);
     Route::resource('penjualan_ikan', PenjualanIkanController::class);
@@ -29,6 +30,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/karyawan/export', [KaryawanController::class, 'export']);
     Route::get('/karyawan', [KaryawanController::class, 'index']);
     Route::delete('/karyawan/{id}', [KaryawanController::class, 'destroy']);
-    Route::post('/karyawan/import', [KaryawanController::class, 'import']);
 });
-Route::post('/karyawan/import', [KaryawanController::class, 'import']); 
+

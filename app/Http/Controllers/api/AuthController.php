@@ -11,14 +11,18 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    // Fungsi untuk membuat user
-    private function createUser($validated, $role)
+    // Fungsi untuk membuat user dengan URL gambar
+    private function createUser($validated, $role, $imageUrl = null)
     {
         return User::create([
             'username' => $validated['username'],
+            'nama' => $validated['nama'],
             'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
+            'no_telp' => $validated['no_telp'] ?? null,
+            'alamat' => $validated['alamat'] ?? null,
+            'image_path' => $imageUrl,
             'role' => $role,
+            'password' => Hash::make($validated['password']),
         ]);
     }
 
@@ -31,39 +35,90 @@ class AuthController extends Controller
     // Register user dengan role 'karyawan'
     public function register(Request $request)
     {
-        // Validasi input yang diterima
+        // Validasi input
         $validated = $request->validate([
             'username' => 'required|string|max:255|unique:users,username',
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:3|confirmed',
+            'nama' => 'required|string|max:255',
+            'no_telp' => 'nullable|string|max:15',
+            'alamat' => 'nullable|string|max:255',
+            'foto' => 'nullable|file|mimes:jpeg,png,jpg|max:2048', // Maksimal 2 MB
         ]);
-    
-        // Menetapkan role sebagai 'manager' secara otomatis
+
         $role = 'karyawan';
-    
-        // Membuat user baru dengan role 'manager'
-        $user = $this->createUser($validated, $role);
-    
-        // Jika pembuatan user gagal
+        $imageUrl = null;
+
+        // Memproses upload gambar jika ada
+        if ($request->hasFile('foto')) {
+            $foto = $request->file('foto');
+            $imageName = time() . '_' . $foto->getClientOriginalName();
+            $foto->move(public_path('assets/images'), $imageName);
+            $imagePath = 'assets/images/' . $imageName;
+            $imageUrl = url($imagePath);
+        }
+
+        // Membuat user dengan URL gambar
+        $user = $this->createUser($validated, $role, $imageUrl);
+
         if (!$user) {
             return response()->json(['message' => 'Failed to register karyawan'], 500);
         }
-    
-        // Generate token untuk user yang baru dibuat
+
         $token = $this->generateToken($user);
-    
-        // Return response dengan token dan data user
+
         return response()->json([
-            'message' => 'Manager registered successfully',
+            'message' => 'Karyawan registered successfully',
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,
+                'nama' => $user->nama,
                 'email' => $user->email,
-                'role' => $user->role, // Akan otomatis 'manager'
+                'no_telp' => $user->no_telp,
+                'alamat' => $user->alamat,
+                'foto' => $user->image_path,
+                'role' => $user->role,
             ]
-        ], 201); // Status 201 menunjukkan resource baru berhasil dibuat
+        ], 201);
+    }
+
+    // Update user profile
+    public function updateUser(Request $request)
+    {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'username' => 'sometimes|string|max:255|unique:users,username,' . $user->id,
+            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+            'nama' => 'sometimes|string|max:255',
+            'no_telp' => 'nullable|string|max:15',
+            'alamat' => 'nullable|string|max:255',
+            'foto' => 'nullable|file|mimes:jpeg,png,jpg|max:2048', // Maksimal 2 MB
+        ]);
+
+        // Update field yang ada
+        $user->username = $validated['username'] ?? $user->username;
+        $user->email = $validated['email'] ?? $user->email;
+        $user->nama = $validated['nama'] ?? $user->nama;
+        $user->no_telp = $validated['no_telp'] ?? $user->no_telp;
+        $user->alamat = $validated['alamat'] ?? $user->alamat;
+
+        // Mengupdate foto jika ada yang baru
+        if ($request->hasFile('foto')) {
+            $foto = $request->file('foto');
+            $fotoName = time() . '_' . $foto->getClientOriginalName();
+            $foto->move(public_path('assets/images'), $fotoName);
+            $user->image_path = url('assets/images/' . $fotoName);
+        }
+
+        $user->save();
+
+        return response()->json([
+            'message' => 'User updated successfully',
+            'user' => $user,
+        ], 200);
     }
 
     // Login user
@@ -82,7 +137,7 @@ class AuthController extends Controller
             ]);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $this->generateToken($user);
 
         return response()->json([
             'access_token' => $token,
@@ -90,7 +145,11 @@ class AuthController extends Controller
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,
+                'nama' => $user->nama,
                 'email' => $user->email,
+                'no_telp' => $user->no_telp,
+                'alamat' => $user->alamat,
+                'foto' => $user->image_path,
                 'role' => $user->role,
             ]
         ], 200);
@@ -109,28 +168,22 @@ class AuthController extends Controller
     // Register manager
     public function registerManager(Request $request)
     {
-        // Validasi input yang diterima
         $validated = $request->validate([
             'username' => 'required|string|max:255|unique:users,username',
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:3|confirmed',
+            'nama' => 'required|string|max:255',
         ]);
-    
-        // Menetapkan role sebagai 'manager' secara otomatis
+
         $role = 'manager';
-    
-        // Membuat user baru dengan role 'manager'
         $user = $this->createUser($validated, $role);
-    
-        // Jika pembuatan user gagal
+
         if (!$user) {
             return response()->json(['message' => 'Failed to register manager'], 500);
         }
-    
-        // Generate token untuk user yang baru dibuat
+
         $token = $this->generateToken($user);
-    
-        // Return response dengan token dan data user
+
         return response()->json([
             'message' => 'Manager registered successfully',
             'access_token' => $token,
@@ -138,30 +191,11 @@ class AuthController extends Controller
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,
+                'nama' => $user->nama,
                 'email' => $user->email,
-                'role' => $user->role, // Akan otomatis 'manager'
+                'role' => $user->role,
             ]
-        ], 201); // Status 201 menunjukkan resource baru berhasil dibuat
-    }
-
-
-    public function validateToken(Request $request)
-    {
-        // Mendapatkan token dari header Authorization
-        $user = $request->user();
-
-        // Jika user terautentikasi, berarti token valid
-        if ($user) {
-            return response()->json([
-                'message' => 'Token valid.',
-                'user' => $user,
-            ], 200);
-        }
-
-        // Jika token tidak valid atau tidak ada, kembalikan error
-        return response()->json([
-            'message' => 'Token tidak valid atau kadaluwarsa.',
-        ], 401);
+        ], 201);
     }
     
 }

@@ -19,6 +19,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Group routes yang memerlukan autentikasi Sanctum
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware('auth:sanctum')->get('/validate-token', [AuthController::class, 'validateToken']);
     Route::resource('daily_task', Daily_TaskController::class);
     Route::resource('modul', ModulController::class);
     Route::get('/modul/download/{id}', [ModulController::class, 'download']);

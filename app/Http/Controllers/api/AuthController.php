@@ -211,4 +211,20 @@ class AuthController extends Controller
             ]
         ], 201);
     }
+    public function validateToken(Request $request)
+    {
+        // Cek apakah user terautentikasi
+        if (Auth::check()) {
+            return response()->json([
+                'message' => 'Token valid',
+                'user' => Auth::user() // Kembalikan data user yang terkait dengan token
+            ]);
+        }
+
+        // Jika token tidak valid
+        return response()->json([
+            'message' => 'Token tidak valid atau kadaluarsa'
+        ], 401);
+    }
+    
 }
